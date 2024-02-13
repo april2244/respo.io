@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candlestick Chart</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+    .container div {
+        margin-bottom: 10px;
+    }
+    .row {
+        display: flex; /* Use flex to make the divs appear in the same row */
+    }
+    .row div {
+        flex: 1; /* Make the divs occupy equal space */
+        margin-right: 10px; /* Add some space between the divs */
+    }
+    label {
+        display: inline-block;
+        width: 120px;
+    }
+    select {
+        width: 100%; /* Set the width to 100% to occupy the entire space */
+        padding: 5px;
+        border-radius: 5px;
+    }
+    button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div>
+            <label for="symbol">Symbol:</label>
+            <select id="symbol">
+                <option value="BTCUSDT">BTCUSDT</option>
+                <option value="CREAMUSDT">CREAMUSDT</option>
+                <option value="VIBUSDT">VIBUSDT</option>
+                <option value="MOBUSDT">MOBUSDT</option>
+                <option value="LEVERUSDT">LEVERUSDT</option>
+                <option value="JASMYUSDT">JASMYUSDT</option>
+                <option value="ADAUSDT">ADAUSDT</option>
+                <option value="LUNAUSDT">LUNAUSDT</option>
+                <option value="SOLUSDT">SOLUSDT</option>
+                <option value="PEOPLEUSDT">PEOPLEUSDT</option>
+                <option value="MATICUSDT">MATICUSDT</option>
+                <option value="AGIXUSDT">AGIXUSDT</option>
+                <option value="ATOMUSDT">ATOMUSDT</option>
+                <option value="GALAUSDT">GALAUSDT</option>
+                <option value="PERPUSDT">PERPUSDT</option>
+                <option value="CRVUSDT">CRVUSDT</option>
+                <option value="MASKUSDT">MASKUSDT</option>
+                <option value="LOOMUSDT">LOOMUSDT</option>
+                <option value="CELOUSDT">CELOUSDT</option>
+                <option value="POLYXUSDT">POLYXUSDT</option>
+                <option value="HFTUSDT">HFTUSDT</option>
+                <option value="BADGERUSDT">BADGERUSDT</option>
+                <option value="FLUXUSDT">FLUXUSDT</option>
+                <option value="PHAUSDT">PHAUSDT</option>
+                <option value="PROSUSDT">PROSUSDT</option>
+                <option value="LAZIOUSDT">LAZIOUSDT</option>
+                <option value="DREPUSDT">DREPUSDT</option>
+                <option value="DEXEUSDT">DEXEUSDT</option>
+                <option value="INJUSDT">INJUSDT</option>
+                <option value="DOGEUSDT">DOGEUSDT</option>
+
+            </select>
+        </div>
+        <div>
+            <label for="interval">Interval:</label>
+            <select id="interval">
+                <option value="1m">1m</option> <!-- 1 minute -->
+                <option value="5m">5m</option> <!-- 5 minutes -->
+                <option value="15m">15m</option> <!-- 15 minutes -->
+                <option value="30m">30m</option> <!-- 30 minutes -->
+                <option value="1h">1h</option> <!-- 1 hour -->
+                <option value="4h">4h</option> <!-- 4 hours -->
+                <option value="1d">1d</option> <!-- 1 day -->
+                <option value="1w">1w</option> <!-- 1 week -->
+            </select>
+        </div>
+        <div>
+            <label for="fetch">Fetch:</label>
+            <select id="fetch">
+                <option value="1000">1s</option>
+                <option value="10000">10s</option>
+                <option value="60000">1min</option>
+                <option value="180000">3min</option>
+                <option value="300000">5min</option>
+                <option value="600000">10min</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div>
+            <label for="limit">Limit:</label>
+            <select id="limit">
+                <option value="200">200</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+                <option value="2000">2000</option>
+
+            </select>
+        </div>
+        <div>
+            <label for="emashort">Short Ema:</label>
+            <select id="emashort">
+                <option value="1">1</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+
+            </select>
+        </div>
+        <div>
+            <label for="emalong">Long Ema:</label>
+            <select id="emalong">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="100">150</option>
+
+            </select>
+        </div>
+        <div>
+            <label for="emaCheckbox">Show EMAs:</label>
+            <input type="checkbox" id="emaCheckbox" onchange="toggleEMAs()">
+        </div>
+    </div>
+<!--
+<div>
+    <button onclick="fetchData()">Plot Chart</button>
+</div>
+-->
+</div>
+<div id="chart"></div>
+
+    <script>
+        let emaVisible = true; // Initialize to true if you want EMAs to be initially visible
+
+    function toggleEMAs() {
+        emaVisible = !emaVisible; // Toggle the visibility flag
+        fetchData(); // Re-fetch data to update the graph with the new visibility settings
+    }
+        function fetchData() {
+            const symbol = document.getElementById("symbol").value;
+            const interval = document.getElementById("interval").value;
+            const limit = document.getElementById("limit").value;
+            const emashort = document.getElementById("emashort").value;
+            const emalong = document.getElementById("emalong").value;
+        
+            fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`)
+                .then(response => response.json())
+                .then(data => {
+                    const timestamp = data.map(entry => new Date(entry[0]));
+                    const close = data.map(entry => parseFloat(entry[4]));
+        
+                    const trace1 = {
+                        x: timestamp,
+                        y: close,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Close Price'
+                    };
+        
+                    // Calculate EMA values
+                    const emaShort = calculateEMA(close, emashort);
+                    const emaLong = calculateEMA(close, emalong);
+        
+                    const traceEMAShort = {
+                        x: timestamp,
+                        y: emaShort,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: `EMA${emashort}`,
+                        line: {
+                            color: 'rgb(144, 238, 144)' // Light green color
+                        }
+                    };
+        
+                    const traceEMALong = {
+                        x: timestamp,
+                        y: emaLong,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: `EMA${emalong}`,
+                        line: { color: '#ff9999' }
+                    };
+        
+                    const layout = {
+                        title: `${symbol} - ${interval}`,
+                        xaxis: {
+                            title: 'Timestamp',
+                            tickformat: '%Y-%m-%d %H:%M:%S' // Format for the x-axis ticks
+                        },
+                        yaxis: {
+                            title: 'Price',
+                            tickformat: '.2f', // Format for the y-axis ticks
+                            autorange: true // Automatically adjust the y-axis range based on data
+                        },
+                        margin: {
+                            t: 50, // Top margin
+                            b: 50, // Bottom margin
+                            l: 50, // Left margin
+                            r: 50  // Right margin
+                        },
+                        plot_bgcolor: '#f5f5f5', // Background color of the plot area
+                        paper_bgcolor: '#ffffff' // Background color of the entire chart
+                    };
+                    if (!emaVisible) {
+
+                    Plotly.newPlot('chart', [trace1, traceEMAShort, traceEMALong], layout);
+                } else {
+                    // If checkbox is not checked, only plot the Close Price trace
+                    Plotly.newPlot('chart', [trace1], layout);
+                }
+                   
+                });
+        }
+        
+        // Function to calculate Exponential Moving Average (EMA)
+        function calculateEMA(data, period) {
+            const ema = [];
+            const k = 2 / (period + 1);
+            let emaValue = data[0];
+        
+            for (let i = 1; i < data.length; i++) {
+                emaValue = (data[i] - emaValue) * k + emaValue;
+                ema.push(emaValue);
+            }
+        
+            return ema;
+        }
+        
+        // Fetch data initially
+        fetchData();
+        
+        // Fetch data periodically
+        setInterval(fetchData, document.getElementById("fetch").value);    </script>
+</body>
+</html>
