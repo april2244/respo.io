@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candlestick Chart</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div>
+        <label for="symbol">Symbol:</label>
+        <select id="symbol">
+            <option value="MOBUSDT">MOBUSDT</option>
+            <option value="BTCUSDT">BTCUSDT</option>
+            <option value="CREAMUSDT">CREAMUSDT</option>
+            <option value="VIBUSDT">VIBUSDT</option>
+        </select>
+    </div>
+    <div>
+        <label for="interval">Interval:</label>
+        <select id="interval">
+            <option value="1s">1s</option>
+            <option value="1m">1m</option>
+            <option value="5m">5m</option>
+            <option value="15m">15m</option>
+            <option value="30m">30m</option>
+            <option value="1h">1h</option>
+        </select>
+    </div>
+    <div>
+        <label for="limit">Limit:</label>
+        <select id="limit">
+            <option value="500">500</option>
+            <option value="700">700</option>
+            <option value="1000">1000</option>
+        </select>
+    </div>
+    <div>
+        <label for="smashort">Short SMA:</label>
+        <select id="smashort">
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+    <div>
+        <label for="smalong">Long SMA:</label>
+        <select id="smalong">
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+    <div>
+        <label for="fetch">fetch:</label>
+        <select id="fetch">
+            <option value="1000">1s</option>
+            <option value="10000">10s</option>
+            <option value="60000">1min</option>
+            <option value="180000">3min</option>
+            <option value="300000">5min</option>
+            <option value="600000">10min</option>
+        </select>
+    </div>
+    <div>
+        <button onclick="fetchData()">Plot Chart</button>
+    </div>
+    <div id="chart"></div>
+
+    <script>
+        function fetchData() {
+            const symbol = document.getElementById("symbol").value;
+            const interval = document.getElementById("interval").value;
+            const limit = document.getElementById("limit").value;
+            const smashort = document.getElementById("smashort").value;
+            const smalong = document.getElementById("smalong").value;
+
+            fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`)
+                .then(response => response.json())
+                .then(data => {
+                    const timestamp = data.map(entry => new Date(entry[0]));
+                    const close = data.map(entry => parseFloat(entry[4]));
+
+                    const trace1 = {
+                        x: timestamp,
+                        y: close,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Close Price'
+                    };
+
+                    const layout = {
+                        title: `${symbol} - ${interval}`,
+                        xaxis: {
+                            title: 'Timestamp'
+                        },
+                        yaxis: {
+                            title: 'Price'
+                        }
+                    };
+
+                    Plotly.newPlot('chart', [trace1], layout);
+                });
+        }
+
+        // Fetch data initially
+    fetchData();
+
+// Fetch data periodically
+setInterval(fetchData, document.getElementById("fetch").value);    </script>
+</body>
+</html>
